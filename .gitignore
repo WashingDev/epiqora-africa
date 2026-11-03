@@ -1,0 +1,26 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+coverage/
+*.log
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Environment and secret files
+.env
+.env.*
+!.env.example
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Database backups and dumps
+*.dump
+*.sql.gz
+*.bak

@@ -1,0 +1,37 @@
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: outbreakwatch-postgres
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      POSTGRES_DB: outbreakwatch
+      POSTGRES_USER: outbreakwatch_admin
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:?DB_ADMIN_PASSWORD is required}
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      - outbreakwatch_postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U outbreakwatch_admin -d outbreakwatch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - outbreakwatch-network
+
+volumes:
+  outbreakwatch_postgres_data:
+
+networks:
+  outbreakwatch-network:
+    driver: bridge
