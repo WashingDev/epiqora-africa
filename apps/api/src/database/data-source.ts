@@ -1,10 +1,14 @@
-
-import 'reflect-metadata';
+﻿import 'reflect-metadata';
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
-import { OrganizationMembership } from '../modules/organization-memberships/entities/organization-membership.entity';
 
 import { Organization } from '../modules/organizations/entities/organization.entity';
+import { OrganizationMembership } from '../modules/organization-memberships/entities/organization-membership.entity';
+import { Role } from '../modules/roles/entities/role.entity';
+import { Permission } from '../modules/roles/entities/permission.entity';
+import { MembershipRole } from '../modules/roles/entities/membership-role.entity';
+import { RolePermission } from '../modules/roles/entities/role-permission.entity';
+import { AuditLog } from '../modules/audit-logs/entities/audit-log.entity';
 
 // Load environment variables from apps/api/.env
 config({ path: '.env' });
@@ -31,7 +35,18 @@ export default new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
 
-  entities: [Organization, OrganizationMembership],
+  uuidExtension: 'pgcrypto',
+
+  entities: [
+    Organization,
+    OrganizationMembership,
+    Role,
+    Permission,
+    MembershipRole,
+    RolePermission,
+    AuditLog,
+  ],
+
   migrations: ['src/database/migrations/*.ts'],
 
   synchronize: false,

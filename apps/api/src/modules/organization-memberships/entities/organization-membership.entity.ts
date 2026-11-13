@@ -7,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -17,6 +18,10 @@ import { MembershipStatus } from '../enums/membership-status.enum';
   'UQ_organization_memberships_org_user',
   ['organizationId', 'keycloakUserId'],
   { unique: true },
+)
+@Unique(
+  'UQ_org_memberships_id_organization',
+  ['id', 'organizationId'],
 )
 export class OrganizationMembership {
   @PrimaryGeneratedColumn('uuid')

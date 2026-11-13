@@ -1,4 +1,6 @@
+
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -12,8 +14,20 @@ import {
 import { Organization } from '../../organizations/entities/organization.entity';
 
 @Entity({ name: 'roles' })
+@Check(
+  'CHK_roles_system_organization',
+  '("is_system_role" = TRUE AND "organization_id" IS NULL) OR ("is_system_role" = FALSE AND "organization_id" IS NOT NULL)',
+)
 @Index('IDX_roles_organization_id', ['organizationId'])
 @Index('IDX_roles_system_role', ['isSystemRole'])
+@Index('UQ_roles_system_code', ['code'], {
+  unique: true,
+  where: '"organization_id" IS NULL',
+})
+@Index('UQ_roles_organization_code', ['organizationId', 'code'], {
+  unique: true,
+  where: '"organization_id" IS NOT NULL',
+})
 export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;

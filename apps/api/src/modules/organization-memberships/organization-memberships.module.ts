@@ -3,10 +3,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { OrganizationMembership } from './entities/organization-membership.entity';
 import { OrganizationMembershipsService } from './organization-memberships.service';
+import { OrganizationContextGuard } from './guards/organization-context/organization-context.guard';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OrganizationMembership])],
-  exports: [TypeOrmModule],
-  providers: [OrganizationMembershipsService],
+  providers: [
+    OrganizationMembershipsService,
+    OrganizationContextGuard,
+  ],
+  exports: [
+    TypeOrmModule,
+    OrganizationMembershipsService,
+    OrganizationContextGuard,
+  ],
 })
 export class OrganizationMembershipsModule {}
