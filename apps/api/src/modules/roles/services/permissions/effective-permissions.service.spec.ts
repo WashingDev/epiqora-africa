@@ -67,7 +67,7 @@ describe('EffectivePermissionsService', () => {
       'membershipRole',
     );
 
-    expect(queryBuilder.distinct).toHaveBeenCalledWith(true);
+      expect(queryBuilder.distinct).toHaveBeenCalledWith(true);
   });
 
   it('should return an empty array when no permissions are found', async () => {
@@ -175,9 +175,8 @@ describe('EffectivePermissionsService', () => {
     );
   });
 
-  it('should eliminate duplicate permission codes', async () => {
+  it('should request distinct permission codes from the database', async () => {
     queryBuilder.getRawMany.mockResolvedValue([
-      { code: 'organizations.read' },
       { code: 'organizations.read' },
       { code: 'roles.read' },
     ]);
@@ -187,9 +186,9 @@ describe('EffectivePermissionsService', () => {
       'membership-456',
     );
 
-    expect(queryBuilder.distinct).toHaveBeenCalledWith(true);
+      expect(queryBuilder.distinct).toHaveBeenCalledWith(true);
+
     expect(result).toEqual([
-      'organizations.read',
       'organizations.read',
       'roles.read',
     ]);

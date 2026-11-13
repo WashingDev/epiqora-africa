@@ -230,6 +230,46 @@ describe('OrganizationMembershipsService', () => {
     );
   });
 
+  it('should use safe defaults for fractional and unsafe pagination inputs', async () => {
+    findAndCountMock.mockResolvedValue([[], 0]);
+
+    const result = await service.findOrganizationMemberships(
+      'organization-1',
+      1.5,
+      Number.MAX_SAFE_INTEGER + 1,
+    );
+
+    expect(result.page).toBe(1);
+    expect(result.limit).toBe(20);
+
+    expect(findAndCountMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        skip: 0,
+        take: 20,
+      }),
+    );
+  });
+
+  it('should prevent unsafe database offsets for very large page numbers', async () => {
+    findAndCountMock.mockResolvedValue([[], 0]);
+
+    const result = await service.findOrganizationMemberships(
+      'organization-1',
+      Number.MAX_SAFE_INTEGER,
+      100,
+    );
+
+    const maximumSafePage =
+      Math.floor(Number.MAX_SAFE_INTEGER / 100) + 1;
+
+    expect(result.page).toBe(maximumSafePage);
+
+    const query = findAndCountMock.mock.calls[0][0];
+    const skip = query?.skip;
+
+    expect(Number.isSafeInteger(skip)).toBe(true);
+    expect(skip).toBe((maximumSafePage - 1) * 100);
+  });
   it('should not select the Keycloak user ID', async () => {
     findAndCountMock.mockResolvedValue([[], 0]);
 

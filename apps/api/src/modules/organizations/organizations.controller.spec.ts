@@ -325,6 +325,66 @@ describe('OrganizationsController', () => {
     );
   });
 
+  it('should ignore an untrusted organization ID and use the verified organization context', async () => {
+    const verifiedOrganizationId =
+      '550e8400-e29b-41d4-a716-446655440000';
+
+    const untrustedOrganizationId =
+      '660e8400-e29b-41d4-a716-446655440000';
+
+    const membershipId =
+      '770e8400-e29b-41d4-a716-446655440000';
+
+    const roleId =
+      '880e8400-e29b-41d4-a716-446655440000';
+
+    const assignment = {
+      id: '990e8400-e29b-41d4-a716-446655440000',
+      organizationId: verifiedOrganizationId,
+      membershipId,
+      roleId,
+      assignedAt: new Date('2026-11-13T08:00:00.000Z'),
+    };
+
+    membershipRolesService.assignRole.mockResolvedValue(assignment);
+
+    const request = {
+      user: {
+        id: 'test-user-123',
+      },
+      organizationContext: {
+        organizationId: verifiedOrganizationId,
+        membershipId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      organizationId: untrustedOrganizationId,
+    };
+
+    await expect(
+      controller.assignRole(
+        membershipId,
+        { roleId },
+        request,
+      ),
+    ).resolves.toEqual(assignment);
+
+    expect(
+      membershipRolesService.assignRole,
+    ).toHaveBeenCalledWith(
+      verifiedOrganizationId,
+      membershipId,
+      roleId,
+      'test-user-123',
+    );
+
+    expect(
+      membershipRolesService.assignRole,
+    ).not.toHaveBeenCalledWith(
+      untrustedOrganizationId,
+      membershipId,
+      roleId,
+      'test-user-123',
+    );
+  });
   it('should apply organization and permission guards to role assignment in the correct order', () => {
     const guards = Reflect.getMetadata(
       GUARDS_METADATA,

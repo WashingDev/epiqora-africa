@@ -36,13 +36,17 @@ export class OrganizationMembershipsService {
     page = 1,
     limit = 20,
   ) {
-    const safePage = Number.isFinite(page)
-      ? Math.max(1, Math.floor(page))
-      : 1;
+    const requestedPage =
+      Number.isSafeInteger(page) && page >= 1 ? page : 1;
 
-    const safeLimit = Number.isFinite(limit)
-      ? Math.min(100, Math.max(1, Math.floor(limit)))
+    const safeLimit = Number.isSafeInteger(limit)
+      ? Math.min(100, Math.max(1, limit))
       : 20;
+
+    const maximumSafePage =
+      Math.floor(Number.MAX_SAFE_INTEGER / safeLimit) + 1;
+
+    const safePage = Math.min(requestedPage, maximumSafePage);
 
     const [memberships, total] =
       await this.membershipRepository.findAndCount({

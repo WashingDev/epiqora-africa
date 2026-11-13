@@ -143,6 +143,34 @@ describe('OrganizationContextGuard', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
+  it('should reject a user attempting to access another organization without membership', async () => {
+    const organizationAId =
+      '550e8400-e29b-41d4-a716-446655440000';
+
+    const organizationBId =
+      '660e8400-e29b-41d4-a716-446655440000';
+
+    findActiveMembershipMock.mockResolvedValue(null);
+
+    const request = {
+      user: { id: 'user-1' },
+      headers: {
+        'x-organization-id': organizationBId,
+      },
+    };
+
+    await expect(
+      guard.canActivate(createExecutionContext(request)),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+
+    expect(findActiveMembershipMock).toHaveBeenCalledWith(
+      organizationBId,
+      'user-1',
+    );
+
+    expect(request).not.toHaveProperty('organizationContext');
+    expect(organizationAId).not.toBe(organizationBId);
+  });
   it('should propagate database errors without converting them into authorization errors', async () => {
     const databaseError = new Error('Database connection failed');
 
