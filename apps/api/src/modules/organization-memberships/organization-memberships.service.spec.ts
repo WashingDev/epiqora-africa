@@ -247,4 +247,14 @@ describe('OrganizationMembershipsService', () => {
 
     expect(query?.select).not.toHaveProperty('keycloakUserId');
   });
+
+  it('should propagate database errors when checking membership', async () => {
+    findOneMock.mockRejectedValue(
+      new Error('Database connection failed'),
+    );
+
+    await expect(
+      service.findActiveMembership('organization-1', 'user-1'),
+    ).rejects.toThrow('Database connection failed');
+  });
 });
